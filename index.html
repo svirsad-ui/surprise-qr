@@ -90,19 +90,14 @@ function update() {
   target.setHours(targetHour, targetMinute, 0, 0);
 
   // если уже прошло — следующая цель завтра
-  if (now.getTime() < target.getTime() - windowMinutes * 60 * 1000) {
+  if (now.getTime() >= target.getTime() - windowMinutes * 60 * 1000 &&
+    now.getTime() <= target.getTime() + windowMinutes * 60 * 1000) {
     // ещё не началось
     render(`<div class="junk">${chooseJunk()}</div>`);
-  } else if (
-    now.getTime() >= target.getTime() - windowMinutes * 60 * 1000 &&
-    now.getTime() <= target.getTime() + windowMinutes * 60 * 1000
-  ) {
+  } else {
     // активное окно
     render(`<div class="hint">${hintText}</div>`);
-  } else if (now.getTime() > target.getTime() + windowMinutes * 60 * 1000) {
-    // уже после — можно показать "опоздал" или билиберду
-    render(`<div class="junk">${chooseJunk()}</div>`);
-  }
+  } 
 }
 
 // проверяем время сразу и каждые 5 секунд
