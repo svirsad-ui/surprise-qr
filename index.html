@@ -93,7 +93,7 @@ function update() {
   if (now.getTime() >= target.getTime() - windowMinutes * 60 * 1000 &&
     now.getTime() <= target.getTime() + windowMinutes * 60 * 1000) {
     // ещё не началось
-    render(`<div class="junk">${chooseJunk()}</div>`);
+    render(`<div class="hint">${chooseJunk()}</div>`);
   } else {
     // активное окно
     render(`<div class="hint">${hintText}</div>`);
