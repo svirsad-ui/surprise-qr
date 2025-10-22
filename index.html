@@ -1,0 +1,111 @@
+<!doctype html>
+<html lang="ru">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>Сканируй — и узнай подсказку</title>
+  <style>
+    body {
+      font-family: system-ui, -apple-system, Segoe UI, Roboto, sans-serif;
+      background: linear-gradient(135deg, #f6f7ff, #e3e9ff);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      min-height: 100vh;
+      margin: 0;
+      padding: 20px;
+    }
+    .card {
+      background: white;
+      padding: 28px;
+      border-radius: 18px;
+      box-shadow: 0 6px 22px rgba(20, 20, 40, 0.1);
+      max-width: 480px;
+      text-align: center;
+    }
+    h1 { font-size: 22px; margin-bottom: 8px; }
+    p { margin: 10px 0; }
+    .hint {
+      background: #e8faff;
+      border-radius: 10px;
+      padding: 14px;
+      margin-top: 16px;
+      font-size: 17px;
+    }
+    .junk {
+      font-family: monospace;
+      color: #888;
+      white-space: pre-wrap;
+      word-break: break-word;
+    }
+    .small { color: #666; font-size: 12px; margin-top: 10px; }
+  </style>
+</head>
+<body>
+  <div class="card">
+    <h1>Секретная подсказка</h1>
+    <div id="content"><p>Проверяю время...</p></div>
+    <p class="small">Обнови страницу в нужное время, если не сработало автоматически.</p>
+  </div>
+
+<script>
+/*
+  === НАСТРОЙКИ ===
+  Укажи время, в которое подсказка активна каждый день.
+*/
+const targetHour = 12;      // <-- ЧАС (0–23)
+const targetMinute = 0;     // <-- МИНУТА
+const windowMinutes = 10;   // <-- окно активности (в минутах)
+
+const hintText = "<strong>Подсказка:</strong> Смотри под ёлкой 🎄";
+const notYetText = "<strong>Ещё не время.</strong> Загляни сюда позже.";
+const afterText = "<strong>Сегодня ты опоздал 😜</strong>";
+const junkPool = [
+  "sdfg34h23h4h23h4h",
+  "¯\\_(ツ)_/¯",
+  "Ошибка 404: подсказка не найдена.",
+  "Проверка доступа... отказано!",
+  "НЕ ВРЕМЯ. Попробуй позже."
+];
+
+function chooseJunk() {
+  return junkPool[Math.floor(Math.random() * junkPool.length)];
+}
+
+function render(html) {
+  document.getElementById('content').innerHTML = html;
+}
+
+function update() {
+  const now = new Date();
+
+  // создаём объект "целевого времени" для СЕГОДНЯШНЕГО дня
+  const target = new Date(now);
+  target.setHours(targetHour, targetMinute, 0, 0);
+
+  // если уже прошло — следующая цель завтра
+  if (now.getTime() < target.getTime() - windowMinutes * 60 * 1000) {
+    // ещё не началось
+    render(`<div class="hint">${notYetText}</div>`);
+  } else if (
+    now.getTime() >= target.getTime() - windowMinutes * 60 * 1000 &&
+    now.getTime() <= target.getTime() + windowMinutes * 60 * 1000
+  ) {
+    // активное окно
+    render(`<div class="hint">${hintText}</div>`);
+  } else if (now.getTime() > target.getTime() + windowMinutes * 60 * 1000) {
+    // уже после — можно показать "опоздал" или билиберду
+    if (now.getHours() < 23) render(`<div class="hint">${afterText}</div>`);
+    else render(`<div class="junk">${chooseJunk()}</div>`);
+  } else {
+    // случайный запасной вариант
+    render(`<div class="junk">${chooseJunk()}</div>`);
+  }
+}
+
+// проверяем время сразу и каждые 5 секунд
+update();
+setInterval(update, 5000);
+</script>
+</body>
+</html>
